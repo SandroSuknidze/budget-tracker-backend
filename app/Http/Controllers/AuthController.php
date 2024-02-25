@@ -2,74 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
 
-    public function register(Request $request): JsonResponse
+    public function __construct()
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
-        }
-
-        $user = User::create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ]);
+        $this->middleware('auth:api', ['except' => ['login']]);
     }
 
-    /**
-     * @throws ValidationException
-     */
-    public function login(Request $request): JsonResponse
+    public function login(): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        $validator = Validator::make(request()->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json($validator->errors());
         }
 
-        $credentials = $validator->validated();
+        $credentials = request(['email', 'password']);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json([
-                'message' => 'Invalid login credentials',
-            ], 401);
+        if (! $token = auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        $user = $request->user();
+        $user = auth()->user();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        return $this->respondWithToken($token, $user);
+    }
 
+    public function logout(): JsonResponse
+    {
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    protected function respondWithToken(string $token, $user): JsonResponse
+    {
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user->email,
-            'id' => $user->id,
+            'token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 1,
+            'user' => $user
         ]);
     }
 }
