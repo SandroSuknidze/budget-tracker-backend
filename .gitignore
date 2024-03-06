@@ -18,4 +18,4 @@ yarn-error.log
 /.idea
 /.vscode
 
-!storage/app/currencies.xlsx
+!/storage/app/currencies.xlsx
