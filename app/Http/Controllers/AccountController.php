@@ -5,23 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AccountController extends Controller
 {
     public function create(Request $request): JsonResponse
     {
-        $request->validate([
-            'title' => 'required|max:128',
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|max:128|unique:accounts,title',
             'currency' => 'required',
-            'balance' => 'required|numeric|min:0',
             'description' => 'max:256',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
 
         Account::create([
             'user_id' => auth()->id(),
             'title' => $request->title,
             'currency' => $request->currency,
-            'balance' => $request->balance,
+            'balance' => 0,
             'description' => $request->description,
         ]);
 

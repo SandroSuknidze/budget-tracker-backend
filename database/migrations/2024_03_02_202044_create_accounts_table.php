@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('currency');
             $table->float('balance');
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }
