@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Validator;
 
 class AccountController extends Controller
 {
+    public function index(): JsonResponse
+    {
+        $userId = auth()->id();
+
+        $accounts = Account::where('user_id', $userId)->get();
+
+        return response()->json($accounts);
+    }
     public function create(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [

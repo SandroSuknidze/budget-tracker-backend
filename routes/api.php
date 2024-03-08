@@ -24,7 +24,10 @@ Route::middleware('auth')->get('/user', function (Request $request) {
 Route::group(['middleware' => 'api'], function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout']);
+
     Route::post('account', [AccountController::class, 'create']);
+    Route::get('account', [AccountController::class, 'index']);
+
     Route::get('currencies', [ExcelController::class, 'index']);
 });
 
