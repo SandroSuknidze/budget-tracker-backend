@@ -26,7 +26,11 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
     Route::post('account', [AccountController::class, 'create']);
-    Route::get('account', [AccountController::class, 'index']);
+    Route::get('accounts', [AccountController::class, 'index']);
+    Route::get('account', [AccountController::class, 'show']);
+    Route::put('account/{id}', [AccountController::class, 'update']);
+    Route::delete('account/{id}', [AccountController::class, 'delete']);
+
 
     Route::get('currencies', [ExcelController::class, 'index']);
 });
