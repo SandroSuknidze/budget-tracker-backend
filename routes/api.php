@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ExcelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,10 @@ Route::group(['middleware' => 'api'], function () {
 
 
     Route::get('currencies', [ExcelController::class, 'index']);
+
+    Route::get('categories', [CategoryController::class, 'index']);
+    Route::post('categories', [CategoryController::class, 'create']);
+    Route::delete('categories/{id}', [CategoryController::class, 'delete']);
 });
 
 
