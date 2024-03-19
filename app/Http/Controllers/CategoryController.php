@@ -65,8 +65,26 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Category not found'], 404);
         }
 
+        $hasTransactions = $category->transactions()->exists();
+
+        if ($hasTransactions) {
+            return response()->json(['message' => 'This category can\'t be removed because it contains transactions'], 422);
+        }
+
         $category->delete();
 
         return response()->noContent();
     }
+
+    public function transactionsCategoryCheck($categoryId)
+    {
+        $userCategory = Category::where('user_id', auth()->id())->find($categoryId);
+
+        if (!$userCategory) {
+            return false;
+        }
+
+        return $userCategory->transactions()->exists();
+    }
+
 }
