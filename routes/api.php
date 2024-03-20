@@ -38,8 +38,10 @@ Route::group(['middleware' => 'api'], function () {
 
     Route::get('categories', [CategoryController::class, 'index']);
     Route::post('categories', [CategoryController::class, 'create']);
+    Route::patch('categories/{id}', [CategoryController::class, 'update']);
     Route::delete('categories/{id}', [CategoryController::class, 'delete']);
     Route::get('categories/{categoryId}/transactions', [CategoryController::class, 'transactionsCategoryCheck']);
+    Route::get('categories/{categoryId}/usage', [CategoryController::class, 'categoryUsageCheck']);
 
     Route::post('transactions', [TransactionController::class, 'create']);
     Route::get('transactions', [TransactionController::class, 'index']);
