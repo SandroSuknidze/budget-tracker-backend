@@ -12,13 +12,24 @@ use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
-    public function index(): JsonResponse
+    public function index($type = null): JsonResponse
     {
-        $categories = Category::where('user_id', auth()->id())
-            ->orWhere('is_default', true)
-            ->select('id', 'title', 'type', 'is_default')
-            ->orderBy('title')
-            ->get();
+
+        if($type) {
+            $categories = Category::where('user_id', auth()->id())
+                ->where('type', $type)
+                ->orWhere('is_default', true)
+                ->select('id', 'title', 'type', 'is_default')
+                ->orderBy('title')
+                ->get();
+        } else {
+            $categories = Category::where('user_id', auth()->id())
+                ->orWhere('is_default', true)
+                ->select('id', 'title', 'type', 'is_default')
+                ->orderBy('title')
+                ->get();
+        }
+
 
         return response()->json($categories);
     }
@@ -58,6 +69,7 @@ class CategoryController extends Controller
 
         return response()->json([
             'message' => 'Category created successfully',
+            'id' => $category->id,
         ], 201);
     }
 

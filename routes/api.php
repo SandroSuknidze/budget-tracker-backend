@@ -36,7 +36,7 @@ Route::group(['middleware' => 'api'], function () {
 
     Route::get('currencies', [ExcelController::class, 'index']);
 
-    Route::get('categories', [CategoryController::class, 'index']);
+    Route::get('categories/{type?}', [CategoryController::class, 'index']);
     Route::post('categories', [CategoryController::class, 'create']);
     Route::patch('categories/{id}', [CategoryController::class, 'update']);
     Route::delete('categories/{id}', [CategoryController::class, 'delete']);
