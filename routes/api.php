@@ -45,6 +45,8 @@ Route::group(['middleware' => 'api'], function () {
 
     Route::post('transactions', [TransactionController::class, 'create']);
     Route::get('transactions', [TransactionController::class, 'index']);
+    Route::get('transactions/{id}', [TransactionController::class,'show']);
+    Route::delete('transactions/{id}', [TransactionController::class, 'destroy']);
 });
 
 

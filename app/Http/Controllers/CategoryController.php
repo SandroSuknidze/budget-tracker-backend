@@ -16,9 +16,11 @@ class CategoryController extends Controller
     {
 
         if($type) {
-            $categories = Category::where('user_id', auth()->id())
-                ->where('type', $type)
-                ->orWhere('is_default', true)
+            $categories = Category::where('type', $type)
+                ->where(function ($query) {
+                    $query->where('user_id', auth()->id())
+                        ->orWhereNull('user_id');
+                })
                 ->select('id', 'title', 'type', 'is_default')
                 ->orderBy('title')
                 ->get();
