@@ -121,4 +121,56 @@ class TransactionController extends Controller
             return response()->json(['error' => 'Failed to delete transaction'], 500);
         }
     }
+
+    public function update(Request $request, $id): JsonResponse
+    {
+        $transaction = Transaction::find($id);
+
+        if(!$transaction) {
+            return response()->json(['message' => 'Transaction not found'], 404);
+        }
+
+        if ($transaction->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'title' => 'string|nullable',
+            'categories' => ['required','array',
+                function ($attribute, $value, $fail) use ($request) {
+                    $categories = Category::whereIn('id', $value)->pluck('type')->unique();
+                    if ($categories->count() > 1) {
+                        $fail('Categories must belong to the same type (income or expenses).');
+                    } elseif ($categories->first() !== $request->input('type')) {
+                        $fail('Selected categories must match the transaction type.');
+                    }
+                }],
+            'categories.*' => ['exists:categories,id'],
+            'amount' => 'required|numeric|min:0.01',
+            'payment_date' => 'required|string',
+            'payee' => 'nullable|string|max:255',
+            'type' => ['required', 'string', 'max:255', Rule::in(['income', 'expenses'])],
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $timestamp = strtotime($request->input('payment_date'));
+
+        $newDateFormat = date("Y-m-d H:i:s", $timestamp);
+
+        $transaction->title = $request->input('title');
+        $transaction->categories()->sync($request->input('categories'));
+        $transaction->amount = $request->input('amount');
+        $transaction->payment_date = $newDateFormat;
+        $transaction->payee = $request->input('payee');
+        $transaction->type = $request->input('type');
+        $transaction->description = $request->input('description');
+
+        $transaction->save();
+
+        return response()->json(['message' => 'Transaction edited successfully']);
+    }
 }
