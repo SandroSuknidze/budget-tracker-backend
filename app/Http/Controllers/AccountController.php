@@ -16,7 +16,6 @@ class AccountController extends Controller
         $userId = auth()->id();
 
         $accounts = Account::where('user_id', $userId)
-            ->inRandomOrder()
             ->get();
 
         return response()->json($accounts);
